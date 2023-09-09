@@ -2,71 +2,76 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const app = express();
 const path = require('path');
-let { PythonShell } = require('python-shell')
+const { PythonShell } = require('python-shell');
 const port = 3000;
-const baseUrl = 'http://localhost:' + port;
+const baseUrl = `http://localhost:${port}`;
+const fs = require('fs');
 
-// 静的ファイル（.htmlファイルなど）を提供するためのディレクトリを指定
+// ミドルウェアの設定
 app.use(express.static(path.join(__dirname, 'public')));
-
-// default options
 app.use(fileUpload({
     tempFileDir: '/tmp/'
 }));
 
-
+// ルート: フォームページを表示
 app.get('/', function (req, res) {
-    // index.htmlを返す
-    // index.htmlファイルへのパスを生成
     const indexPath = path.join(__dirname, './view/index.html');
-
-    // index.htmlファイルを送信
     res.sendFile(indexPath);
 });
 
+// ルート: ファイルのアップロードおよびPythonスクリプトの実行
 app.post('/upload', function (req, res) {
-    let uploadFileData; //アップロードされたファイルデータを格納するための変数
-    let savePath; //アップロードされたファイルを保存するためのパスを指定する変数
+    let uploadFileData; // アップロードされたファイルデータ
+    let savePath; // アップロードされたファイルの保存先パス
 
-    // リクエストされた際、ファイルがアップロードされていない場合はエラーを返す
-    // !req.files → req.filesが存在しない場合にtrueを返す
-    // Object.keys(req.files).length === 0 → req.filesの中身が空の場合にtrueを返す
-    // 上２つの条件が || で繋がっている → またはの意味
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
 
-    uploadFileData = req.files.uploadFileData; // ファイルデータを格納 ・ req.files.sampleFileのsampleFileはinputタグのname属性の値
+    uploadFileData = req.files.uploadFileData;
+    savePath = path.join(__dirname, 'tmp', uploadFileData.name);
 
-    savePath = __dirname + '/tmp/' + uploadFileData.name; //ファイルnameを取得して、保存先のパスを指定
-
-    // 任意の場所にファイルを保存
     uploadFileData.mv(savePath, function (err) {
-        if (err)
-            // ファイルを保存する際にエラーが発生した場合はエラーを返す
+        if (err) {
             return res.status(500).send(err);
+        }
 
-        // pythonshellを使ってpythonファイルを実行
+        // Pythonスクリプトの実行
         let shell = new PythonShell('imgclassification.py', { mode: 'text' });
         shell.send(savePath);
 
-        // Check!!：shell.onの第一引数はmessageという名前で固定(他の名前に変えると動かない)
+        let messageFromPython = "test"; // デフォルトのメッセージ。外側で定義することで.end内でも参照できるようになる
+
+        // Pythonスクリプトからのメッセージを受け取る
         shell.on('message', function (message) {
             // ここで受け取る値は、python側でprintした値
+            // shell.onの第一引数はmessageという名前で固定(他の名前に変えると動かない)
+            messageFromPython = message;
             console.log(`node.js側のmessage: ${message}`);
         });
 
         shell.end(function (err) {
             if (err) throw err;
-            console.log('finished');
-            res.send('File uploaded!');// 画面に表示される文字を返す
+            console.log('Pythonのコードの実行が終了しました');
+
+            // HTMLファイルを読み込んでプレースホルダを置き換えてクライアントに送信
+            fs.readFile(path.join(__dirname, 'public', 'result.html'), 'utf8', function (err, data) {
+                // HTMLのデータがdataに格納される
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send('エラーが発生しました。');
+                }
+                // result.html内にあるプレースホルダを変数で置き換え
+                const modifiedHTML = data.replace('{{ messageFromPython }}', messageFromPython);
+                // {{messageFromPython}}を置き換えたHTMLを返す
+                res.send(modifiedHTML);
+            });
         });
     });
 });
 
-// サーバーを立てる
-// ファイルのアップロードの機能とは関係ない
-let server = app.listen(port, function () {
-    console.log("listening at port %s", server.address().port);
+// サーバーを起動
+const server = app.listen(port, function () {
+    console.log(`サーバーがポート ${server.address().port} で起動しました。`);
 });
 
