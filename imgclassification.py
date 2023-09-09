@@ -46,8 +46,13 @@ def main(filepath):
     with open('./imagenet_class_index.json') as f:
         labels = json.load(f)
         result_label = labels[str(idx.item())][1]
-    print(f"分類結果は{result_label}")
+    # print(f"分類結果は{result_label}")
     return result_label
 
-label = main("./tmp/saboten.png")
+
+# node.jsからのデータを受け取る
+savePath = input()
+
+label = main(savePath)
+# この値をnode.jsに返す
 print(label)

@@ -2,6 +2,7 @@ const express = require('express');
 const fileUpload = require('express-fileupload');
 const app = express();
 const path = require('path');
+let { PythonShell } = require('python-shell')
 const port = 3000;
 const baseUrl = 'http://localhost:' + port;
 
@@ -12,6 +13,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload({
     tempFileDir: '/tmp/'
 }));
+
 
 app.get('/', function (req, res) {
     // index.htmlを返す
@@ -35,15 +37,30 @@ app.post('/upload', function (req, res) {
     }
 
     uploadFileData = req.files.uploadFileData; // ファイルデータを格納 ・ req.files.sampleFileのsampleFileはinputタグのname属性の値
-    console.log('uploadFileData', uploadFileData);
+
     savePath = __dirname + '/tmp/' + uploadFileData.name; //ファイルnameを取得して、保存先のパスを指定
 
     // 任意の場所にファイルを保存
     uploadFileData.mv(savePath, function (err) {
         if (err)
+            // ファイルを保存する際にエラーが発生した場合はエラーを返す
             return res.status(500).send(err);
 
-        res.send('File uploaded!');
+        // pythonshellを使ってpythonファイルを実行
+        let shell = new PythonShell('imgclassification.py', { mode: 'text' });
+        shell.send(savePath);
+
+        // Check!!：shell.onの第一引数はmessageという名前で固定(他の名前に変えると動かない)
+        shell.on('message', function (message) {
+            // ここで受け取る値は、python側でprintした値
+            console.log(`node.js側のmessage: ${message}`);
+        });
+
+        shell.end(function (err) {
+            if (err) throw err;
+            console.log('finished');
+            res.send('File uploaded!');// 画面に表示される文字を返す
+        });
     });
 });
 
