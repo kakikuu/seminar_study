@@ -1,7 +1,6 @@
-# ファイルをアップロードするコード
+# ファイルのアップロード
 
-
-ファイルのアップロードするコードを書く前にすること
+### ファイルのアップロードするコードを書く前にすること
 - index.html(フロントエンド)とapp.js(サーバーサイド) を作る
 - app.jsの中に以下のコードを書く
     - サーバーを立てて、HTMLファイルを表示できるようにする
@@ -25,17 +24,34 @@
       ```
 
 ### コード解説
-
 #### ファイルの役割
 `app.js`
 - サーバーサイド
     - サーバーを立てる
     - HTMLファイルを表示する
     - アップロードされたファイルを受け取る
-    - ```
-      app.use(fileUpload({tempFileDir: '/tmp/'}));
-      ```
+        - ```javascript
+          app.use(fileUpload({tempFileDir: '/tmp/'}));
+          let uploadFileData; //アップロードされたファイルデータを格納するための変数
+          let savePath; //アップロードされたファイルを保存するためのパスを指定する変数
+    
+          if (!req.files || Object.keys(req.files).length === 0) {
+              return res.status(400).send('No files were uploaded.');
+            }
+    
+          uploadFileData = req.files.uploadFileData; // ファイルデータを格納 ・ req.files.sampleFileのsampleFileはinputタグのname属性の値
+          console.log('uploadFileData', uploadFileData);
+          savePath = __dirname + '/tmp/' + uploadFileData.name; //ファイルnameを取得して、保存先のパスを指定
+          ```
     - アップロードされたファイルを保存する
+        - ```
+            uploadFileData.mv(savePath, function (err) {
+            if (err)
+                return res.status(500).send(err);
+    
+            res.send('File uploaded!');
+            });    
+          ```    
 
 `index.html`
 - フロントエンド
