@@ -1,6 +1,7 @@
 # 画像分類を行うwebアプリ
-
+超簡易的な画像分類を行うアプリです。
 スライドを見ながら進めることをおすすめします。
+動作動画は[こちらのリンク](https://drive.google.com/file/d/1B3Ig4JB0HiODPErQMuyEnW0zcBIk7EWi/view?usp=drive_link)から飛べます
 
 ## 資料
 - スライド
@@ -24,3 +25,6 @@
 - python-shell
 - express
 - express-fileupload
+
+### 環境構築時に行うもの
+`pip install -r requirements.txt`
