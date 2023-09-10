@@ -20,7 +20,11 @@
     - https://github.com/kakikuu/seminar_study/blob/img_classification/README.md
 - 分類結果表示部分
     - https://github.com/kakikuu/seminar_study/blob/resultDisplay/README.md
- 
+
+### 事前に用意しておく環境
+- node.jsのinstall
+    -  node.jsは[こちら](https://nodejs.org/en)からinstallできます
+
 ### npmでinstallするもの
 - python-shell
 - express
