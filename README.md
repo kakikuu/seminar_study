@@ -20,3 +20,7 @@
 - 分類結果表示部分
     - https://github.com/kakikuu/seminar_study/blob/resultDisplay/README.md
  
+### npmでinstallするもの
+- python-shell
+- express
+- express-fileupload
