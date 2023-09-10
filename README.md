@@ -1,16 +1,22 @@
 # seminar_study
-## ファイルをアップロードするまでのコード
+## pythonから受け取ったデータをHTMLで表示する
 
 ### コード解説
+`result.html`
+```HTML
+<p>処理結果: {{ messageFromPython }}</p>
+```
+- HTML上に変数を表示する箇所を予め用意しておく
 
-#### ファイルの役割
 `app.js`
-- サーバーを立てる
-- HTMLファイルを表示する
-- アップロードされたファイルを受け取る
-- アップロードされたファイルを保存する
+```javascript
+   // result.html内にあるプレースホルダを変数で置き換え
+   const modifiedHTML = data.replace('{{ messageFromPython }}', messageFromPython);
+   // {{messageFromPython}}を置き換えたHTMLを返す
+   res.send(modifiedHTML);
+```
 
-`index.html`
-- ファイルをアップロードするフォームの作成
-    - app.jsで受け取ってくれる処理をしてくれる場所(エンドポイント)にアップロードするように設定
-
+### ひとこと
+今回は情報量があまり増えないように使わなかったけど、.ejsという拡張子がある。
+このファイルを使うことで変数をHTMLに入れやすくなる。詳しく知りたい人は、
+`node.js テンプレートエンジン`で検索してみてください。
