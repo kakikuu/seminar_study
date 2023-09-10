@@ -1,6 +1,7 @@
 # 画像分類を行うwebアプリ
 超簡易的な画像分類を行うアプリです。
 スライドを見ながら進めることをおすすめします。
+みてもわかりません。説明が圧倒的に足りませんでした。反省します。
 動作動画は[こちらのリンク](https://drive.google.com/file/d/1B3Ig4JB0HiODPErQMuyEnW0zcBIk7EWi/view?usp=drive_link)から飛べます
 
 ## 資料
